@@ -74,7 +74,10 @@ public class LessonActivity extends Activity{
 		    	text.add(line);
 		    	
 		    	//load a sound for each line
-		    	soundID.add(soundPool.load(path+ "/" +lesson+ "/" +lesson+id+".mp3", 0));
+		    	if(id<10)
+		    		soundID.add(soundPool.load(path+ "/" +lesson+ "/" +lesson+"_0"+id+".mp3", 0));
+		    	else
+		    		soundID.add(soundPool.load(path+ "/" +lesson+ "/" +lesson+"_"+id+".mp3", 0));
 		    	id++;
 		    }
 		} catch (FileNotFoundException e) {

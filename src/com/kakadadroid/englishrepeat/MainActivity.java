@@ -29,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	private MediaPlayer mp;
@@ -74,6 +75,7 @@ public class MainActivity extends Activity {
 		final ListView listview = (ListView) findViewById(R.id.listview);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.title_list_item, titlesList);
 		listview.setAdapter(adapter);
+		//Toast.makeText(this, path.toString(), Toast.LENGTH_LONG).show();
 		
 		//wire onclicks for titles
 		listview.setOnItemClickListener(new OnItemClickListener() {
