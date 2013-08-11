@@ -18,11 +18,16 @@ import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -35,7 +40,8 @@ public class MainActivity extends Activity {
 	private String lesson;
 	private SoundPool soundPool;
 	private List<Integer> soundID;
-	private List<String> text;
+	private List<String> titlesList;
+	private List<String> lessonsList;
 	private boolean loaded;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,40 +49,18 @@ public class MainActivity extends Activity {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		lesson = "frying";
 		
-		// Load the sound
-	    soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-	    soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-	      @Override
-	      public void onLoadComplete(SoundPool soundPool, int sampleId,
-	          int status) {
-	        loaded = true;
-	        Log.i("Soundpool", "loaded");
-	      }
-	    });
-	    int id;
-	    soundID = new ArrayList<Integer>();
-
-	    
-	    curID=0;
-		
-	    // Load the text
-	    text = new ArrayList<String>();
-	    FileInputStream textStream;
+		//load all lessons
+		titlesList = new ArrayList<String>();
+		lessonsList = new ArrayList<String>();
+	    FileInputStream titleStream;
 		try {
-			textStream = new FileInputStream(new File(path, lesson+".txt"));
-		
-		    BufferedReader r = new BufferedReader(new InputStreamReader(textStream));
-		    StringBuilder total = new StringBuilder();
+			titleStream = new FileInputStream(new File(path, "titles.txt"));
+		    BufferedReader r = new BufferedReader(new InputStreamReader(titleStream));
 		    String line;
-		    id=1;
 		    while ((line = r.readLine()) != null) {
-		    	text.add(line);
-		    	
-		    	//load a sound for each line
-		    	soundID.add(soundPool.load(path+"/"+lesson+id+".mp3", 0));
-		    	id++;
+		    	lessonsList.add(line);
+		    	titlesList.add(r.readLine());
 		    }
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -86,48 +70,24 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		} 
 		
-		// Display first line
-		textView = (TextView)findViewById(R.id.textView1);
-		textView.setText(text.get(curID));
+		// Display titles
+		final ListView listview = (ListView) findViewById(R.id.listview);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.title_list_item, titlesList);
+		listview.setAdapter(adapter);
 		
-	    //wiring the buttons
-	    buttonPlay = (Button) findViewById(R.id.button_replay);
-		buttonPlay.setOnClickListener(new OnClickListener() {
-		    public void onClick(View view) {     
-		        new Thread(){
-		            public void run(){   
-		                soundPool.play(soundID.get(curID), 1, 1, 1, 0, 1.0f);
-		            }
-		        }.start();
-		    }
-		});
+		//wire onclicks for titles
+		listview.setOnItemClickListener(new OnItemClickListener() {
+			  @Override
+			  public void onItemClick(AdapterView<?> parent, View view,
+			    int position, long id) {
+				  //start a lesson activity					
+				  Intent startLesson = new Intent(getApplicationContext(), LessonActivity.class);
+				  startLesson.putExtra("lesson", lessonsList.get(position));
+				  startLesson.putExtra("title", titlesList.get(position));
+				  startActivity(startLesson);
+			  }
+			}); 
 		
-		buttonNext = (Button) findViewById(R.id.button_next);
-		buttonNext.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {				
-				//changing the sound
-				curID++;
-				soundPool.play(soundID.get(curID), 1, 1, 1, 0, 1.0f);
-				
-				//changing the text
-				textView.setText(text.get(curID));
-			}
-		});
-		
-		buttonBack = (Button) findViewById(R.id.button_previous);
-		buttonBack.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {				
-				//changing the sound
-				curID--;
-				soundPool.play(soundID.get(curID), 1, 1, 1, 0, 1.0f);
-				//changing the text
-				textView.setText(text.get(curID));
-			}
-		});
 	}
 
 	@Override
