@@ -12,6 +12,7 @@ import java.util.List;
 import android.app.Activity;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
@@ -24,9 +25,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class LessonActivity extends Activity{
+
 	private Button buttonPlay;
 	private Button buttonNext;
 	private Button buttonBack;
+	private Button buttonSpeak;
 	private TextView textView;
 	private int curID; 
 	private String lesson;
@@ -34,6 +37,11 @@ public class LessonActivity extends Activity{
 	private List<Integer> soundID;
 	private List<String> text;
 	private boolean loaded=false;
+	
+	private MediaRecorder mRecorder = null;
+	private boolean mStartRecording = true;
+	private MediaPlayer   mPlayer = null;
+	private static String mFileName = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS);
@@ -99,7 +107,7 @@ public class LessonActivity extends Activity{
 		        new Thread(){
 		            public void run(){   
 		            	if(loaded)
-		                soundPool.play(soundID.get(curID), 1, 1, 1, 0, 1.0f);
+		                soundPool.play(soundID.get(curID), 0.5f, 0.5f, 1, 0, 1.0f);
 		            }
 		        }.start();
 		    }
@@ -132,6 +140,24 @@ public class LessonActivity extends Activity{
 			}
 		});
 		
+		//setup the recorder
+		mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+        mFileName += "/temp.3gp";
+		buttonSpeak = (Button) findViewById(R.id.button_speak);
+		buttonSpeak.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				onRecord(mStartRecording);
+                if (mStartRecording) {
+                    ((Button) v).setText(getString(R.string.stop));
+                } else {
+                	((Button) v).setText(getString(R.string.speak));
+                }
+                mStartRecording = !mStartRecording;
+			}
+		});
+		
 		//play the first sentence
 		soundPool.play(soundID.get(curID), 1, 1, 1, 0, 1.0f);
 	}
@@ -142,4 +168,65 @@ public class LessonActivity extends Activity{
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		soundPool.release();
+		stopRecording();
+		stopPlaying();
+	}
+
+	private void onRecord(boolean start) {
+        if (start) {
+        	stopPlaying();
+            startRecording();
+        } else {
+            stopRecording();
+            startPlaying();
+        }
+    }
+
+	  
+    private void startPlaying() {
+        mPlayer = new MediaPlayer();
+        try {
+            mPlayer.setDataSource(mFileName);
+            mPlayer.prepare();
+            mPlayer.start();
+        } catch (IOException e) {
+            Log.e("start playing", "prepare() failed");
+        }
+    }
+
+    private void stopPlaying() {
+        if(mPlayer!=null) mPlayer.release();
+        mPlayer = null;
+    }
+
+    private void startRecording() {
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mRecorder.setOutputFile(mFileName);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        try {
+            mRecorder.prepare();
+        } catch (IOException e) {
+            Log.e("start recording", "prepare() failed");
+        }
+        
+        mRecorder.start();
+    }
+
+    private void stopRecording() {
+        if(mRecorder!=null){
+        	mRecorder.stop();
+            mRecorder.release();
+        }
+        mRecorder = null;
+    }
 }
+
+

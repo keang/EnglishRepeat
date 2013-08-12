@@ -6,5 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="previous">&lt; &lt;</string>
     <string name="next">&gt; &gt;</string>
+    <string name="speak">Speak</string>
+    <string name="stop">Finish</string>
 
 </resources>

@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.title_list_item, titlesList);
 		listview.setAdapter(adapter);
 		//Toast.makeText(this, path.toString(), Toast.LENGTH_LONG).show();
-		
+		//Log.i("path", path.toString());
 		//wire onclicks for titles
 		listview.setOnItemClickListener(new OnItemClickListener() {
 			  @Override
