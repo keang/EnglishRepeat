@@ -32,18 +32,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-	private MediaPlayer mp;
-	private Button buttonPlay;
-	private Button buttonNext;
-	private Button buttonBack;
-	private TextView textView;
-	private int curID; 
-	private String lesson;
-	private SoundPool soundPool;
-	private List<Integer> soundID;
 	private List<String> titlesList;
 	private List<String> lessonsList;
-	private boolean loaded;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS);
