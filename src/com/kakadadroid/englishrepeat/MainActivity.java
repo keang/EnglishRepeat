@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.parse.Parse;
+import com.parse.ParseAnalytics;
+import com.parse.ParseInstallation;
+import com.parse.PushService;
+
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
@@ -41,6 +46,13 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		//initialize Parse
+		Parse.initialize(this, "j0JtophPAGbWHkyMYkR1IyneNfQcKKxNsM2enwxM", "brta8dJ5olNrlxw4P96fWEsxt6ZMKirJs0rDeMXW"); 
+		PushService.setDefaultPushCallback(this, MainActivity.class);
+		ParseInstallation.getCurrentInstallation().saveInBackground();
+		//for parse tracking
+		ParseAnalytics.trackAppOpened(getIntent()); 
+		Log.i("init parse", "done");
 		//load all lessons
 		titlesList = new ArrayList<String>();
 		lessonsList = new ArrayList<String>();
@@ -81,6 +93,7 @@ public class MainActivity extends Activity {
 			}); 
 		
 	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
